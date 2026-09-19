@@ -1,0 +1,137 @@
+{
+  "name": "Interview Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Interview Scheduling",
+        "formDescription": "Please select your preferred interview date and time.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Candidate Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Interview Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Interview Time",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -560,
+        -64
+      ],
+      "id": "e2d7aae0-f7fa-4f6c-936b-a298989eccfc",
+      "name": "Interview Scheduling Form",
+      "webhookId": "REPLACE_ON_IMPORT"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "your-email@gmail.com",
+          "mode": "list",
+          "cachedResultName": "your-email@gmail.com"
+        },
+        "start": "={{ DateTime.fromFormat($json[\"Interview Date\"] + \" \" + $json[\"Interview Time\"], \"yyyy-MM-dd h:mma\", { zone: \"Asia/Dhaka\" }).toISO() }}",
+        "end": "={{ DateTime.fromFormat($json[\"Interview Date\"] + \" \" + $json[\"Interview Time\"], \"yyyy-MM-dd h:mma\", { zone: \"Asia/Dhaka\" }).plus(1, \"hour\").toISO() }}",
+        "additionalFields": {
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        -64
+      ],
+      "id": "a813888c-7e6c-4d8f-8014-624b6f1cd026",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Interview Scheduling Form').item.json.Email }}",
+        "subject": "=Interview Confirmed \u2013 {{ $('Interview Scheduling Form').item.json['Candidate Name'] }}",
+        "message": "=Hi {{ $('Interview Scheduling Form').item.json['Candidate Name'] }},  Your interview has been successfully scheduled.  \ud83d\udcc5 Date: {{ $('Interview Scheduling Form').item.json['Interview Date'] }} \u23f0 Time: {{ $('Interview Scheduling Form').item.json['Interview Time'] }}  \ud83d\udd17 Google Meet: {{ $json.conferenceData.entryPoints[0].uri }}  Please join the meeting using the Google Meet link at the scheduled time.  Best regards, AI Recruitment Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -64
+      ],
+      "id": "06234f62-b7e8-41f7-85ab-2dd7ce2c88f9",
+      "name": "Send a message",
+      "webhookId": "REPLACE_ON_IMPORT",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Interview Scheduling Form": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "REPLACE_ON_IMPORT",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "nodeGroups": [],
+  "id": "REPLACE_ON_IMPORT",
+  "tags": []
+}
